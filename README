@@ -1,0 +1,27 @@
+This is Perl module Net::TinyIp.
+
+INSTALLATION
+
+Net::TinyIp installation is straightforward. If your CPAN shell is set up,
+you should just be able to do
+
+    % cpan Net::TinyIp
+
+Download it, unpack it, then build it as per the usual:
+
+    % perl Makefile.PL
+    % make && make test
+
+Then install it:
+
+    % make install
+
+DOCUMENTATION
+
+Net::TinyIp documentation is available as in POD. So you can do:
+
+    % perldoc Net::TinyIp
+
+to read the documentation online with your favorite pager.
+
+kuniyoshi
