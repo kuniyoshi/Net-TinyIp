@@ -50,10 +50,13 @@ sub new {
     my( $host, $mask ) = @_;
     my %self;
 
+    $mask //= 0;
+
     croak "Host required"
         unless defined $host;
 
-    $self{int} = $class->parse_int( $host );
+    $self{host} = $class->parse_int( $host );
+    $self{mask} = $class->parse_int( $mask );
 
     return bless \%self, $class;
 }
