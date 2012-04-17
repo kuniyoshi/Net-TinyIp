@@ -1,27 +1,19 @@
-This is Perl module Net::TinyIp.
+NAME
+    Net::TinyIp - IP object
 
-INSTALLATION
+SYNOPSIS
+      use Net::TinyIp;
+      my $ip = Net::TinyIp->new( "192.168.1.1" );
+      say $ip;
 
-Net::TinyIp installation is straightforward. If your CPAN shell is set up,
-you should just be able to do
+DESCRIPTION
+    Net::TinyIp represents IP address.
 
-    % cpan Net::TinyIp
+AUTHOR
+    kuniyoshi <kuniyoshi@cpan.org>
 
-Download it, unpack it, then build it as per the usual:
+SEE ALSO
+LICENSE
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
-    % perl Makefile.PL
-    % make && make test
-
-Then install it:
-
-    % make install
-
-DOCUMENTATION
-
-Net::TinyIp documentation is available as in POD. So you can do:
-
-    % perldoc Net::TinyIp
-
-to read the documentation online with your favorite pager.
-
-kuniyoshi
