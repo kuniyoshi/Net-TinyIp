@@ -45,20 +45,46 @@ sub parse_int_as_v6 {
     );
 }
 
+sub to_ascii {
+    my $class   = shift;
+    my $int     = shift;
+    my $version = shift || 4;
+    my $method  = "to_ascii_as_v$version";
+
+    return $class->$method( $int );
+}
+
+sub to_ascii_as_v4 {
+    my $class = shift;
+    my $int   = shift;
+    ( my $bin_str = $int->as_bin ) =~ s{\A 0b }{}msx;
+
+    $bin_str = "0" x ( 8 * 4 - length $bin_str ) . $bin_str;
+
+    return join q{.}, map { sprintf "%03d", eval "0b$_" } ( $bin_str =~ m{ (\d{8}) }gmsx );
+}
+
 sub new {
     my $class = shift;
     my( $host, $mask ) = @_;
     my %self;
 
-    $mask //= 0;
-
     croak "Host required"
         unless defined $host;
 
-    $self{host} = $class->parse_int( $host );
-    $self{mask} = $class->parse_int( $mask );
+    $self{host}    = $class->parse_int( $host );
+    $self{mask}    = $class->parse_int( $mask );
+    $self{version} = $host =~ m{[.]} ? 4 : $host =~ m{[:]} ? 6 : undef;
 
     return bless \%self, $class;
+}
+
+sub cidr { length sprintf "%s", shift->{mask}->as_bin =~ m{\A 0b (1+) }msx }
+
+sub human_readable {
+    my $self = shift;
+
+    return join q{/}, $self->to_ascii( @{ $self }{ qw( host version ) } ), $self->cidr;
 }
 
 1;
@@ -71,7 +97,7 @@ Net::TinyIp - IP object
 =head1 SYNOPSIS
 
   use Net::TinyIp;
-  my $ip = Net::TinyIp->new( "192.168.1.1" );
+  my $ip = Net::TinyIp->new( "192.168.1.1", "255.255.255.0" );
   say $ip;
 
 =head1 DESCRIPTION
