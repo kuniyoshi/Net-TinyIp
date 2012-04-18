@@ -1,90 +1,43 @@
 package Net::TinyIp;
 use strict;
 use warnings;
-use Carp qw( croak );
-use Math::BigInt;
+use Net::TinyIp::Address;
+
+use overload q{""} => \&human_readable;
 
 our $VERSION = '0.01';
 
+=for comment
 sub import {
     my $class = shift;
-    my @tags;
+    my @tags  = @_;
 
-    foreach my $tag ( @_ ) {
+    foreach my $tag ( @tags ) {
         my $module = join q{::}, $class, map { ucfirst } split m{_}, $tag;
         eval "require $module"
             or die;
     }
 }
-
-sub parse_int {
-    my $class = shift;
-    my $ascii = shift;
-
-    return $class->parse_int_as_v4( $ascii )
-        if $ascii =~ m{ [.] }msx;
-    return $class->parse_int_as_v6( $ascii )
-        if $ascii =~ m{ [:] }msx;
-}
-
-sub parse_int_as_v4 {
-    my $class = shift;
-    my $ascii = shift;
-
-    return Math::BigInt->from_bin(
-        join q{}, q{0b}, map { sprintf "%08b", $_ } split m{[.]}, $ascii,
-    );
-}
-
-sub parse_int_as_v6 {
-    my $class = shift;
-    my $ascii = shift;
-
-    return Math::BigInt->from_hex(
-        join q{}, q{0x}, map { $_ } split m{[:]}, $ascii,
-    );
-}
-
-sub to_ascii {
-    my $class   = shift;
-    my $int     = shift;
-    my $version = shift || 4;
-    my $method  = "to_ascii_as_v$version";
-
-    return $class->$method( $int );
-}
-
-sub to_ascii_as_v4 {
-    my $class = shift;
-    my $int   = shift;
-    ( my $bin_str = $int->as_bin ) =~ s{\A 0b }{}msx;
-
-    $bin_str = "0" x ( 8 * 4 - length $bin_str ) . $bin_str;
-
-    return join q{.}, map { sprintf "%03d", eval "0b$_" } ( $bin_str =~ m{ (\d{8}) }gmsx );
-}
+=cut
 
 sub new {
-    my $class = shift;
-    my( $host, $mask ) = @_;
+    my $class   = shift;
+    my $address = shift;
     my %self;
 
-    croak "Host required"
-        unless defined $host;
+    my( $host, $cidr ) = split m{/}, $address;
 
-    $self{host}    = $class->parse_int( $host );
-    $self{mask}    = $class->parse_int( $mask );
-    $self{version} = $host =~ m{[.]} ? 4 : $host =~ m{[:]} ? 6 : undef;
+    $self{host}    = Net::TinyIp::Address->from_v4( $host );
+    $self{cidr}    = Net::TinyIp::Address->from_v4_cidr( $cidr );
+#    $self{network}; # now writing...
+#    $self{version} = $host =~ m{[.]} ? 4 : $host =~ m{[:]} ? 6 : undef;
 
     return bless \%self, $class;
 }
 
-sub cidr { length sprintf "%s", shift->{mask}->as_bin =~ m{\A 0b (1+) }msx }
-
 sub human_readable {
     my $self = shift;
-
-    return join q{/}, $self->to_ascii( @{ $self }{ qw( host version ) } ), $self->cidr;
+    return join q{/}, @{ $self }{ qw( host cidr ) };
 }
 
 1;
@@ -97,7 +50,7 @@ Net::TinyIp - IP object
 =head1 SYNOPSIS
 
   use Net::TinyIp;
-  my $ip = Net::TinyIp->new( "192.168.1.1", "255.255.255.0" );
+  my $ip = Net::TinyIp->new( "192.168.1.1/24" );
   say $ip;
 
 =head1 DESCRIPTION
