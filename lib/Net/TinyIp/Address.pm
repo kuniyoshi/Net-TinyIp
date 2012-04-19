@@ -2,6 +2,7 @@ package Net::TinyIp::Address;
 use strict;
 use warnings;
 use base "Math::BigInt";
+use Carp qw( croak );
 
 use overload q{""} => \&human_readable;
 
@@ -19,93 +20,52 @@ sub from_hex {
     return bless $big_int, $class;
 }
 
-sub from_v4 {
-    my $class = shift;
-    my $str   = shift;
-    my $self  = $class->from_bin(
-        join q{}, q{0b}, map { sprintf "%08b", $_ } split m{[.]}, $str,
-    );
-    $self->address_type( "host" );
-
-    return $self;
-}
-
-sub from_v6 {
-    my $class = shift;
-    my $str   = shift;
-    my $self  = $class->from_hex(
-        join q{}, q{0x}, map { $_ } split m{[:]}, $str,
-    );
-    $self->address_type( "host" );
-
-    return $self;
-}
-
 sub from_cidr {
-    my $class              = shift;
-    my( $prefix, $length ) = @{ { @_ } }{ qw( prefix length ) };
-    my $self               = $class->from_bin(
-        join q{}, q{0b}, ( "1" x $prefix ), ( "0" x ( $length - $prefix ) ),
-    );
-    $self->address_type( "network" );
+    my $class  = shift;
+    my $prefix = shift;
+    my $length = $class->get( "bits_length" );
+    my $self   = $class->from_bin( "0b1" );
+
+    $self = ( $self << $prefix ) - 1;
+    $self = $self << ( $length - $prefix );
 
     return $self;
 }
 
-sub from_v4_cidr { shift->from_cidr( prefix => shift, length => 32  ) }
+sub get {
+    my $class = shift;
+    my $what  = uc shift;
 
-sub from_v6_cidr { shift->from_cidr( prefix => shift, length => 128 ) }
+    $class = ref $class
+        if ref $class;
 
-sub version {
-    my $self = shift;
-
-    if ( @_ ) {
-        $self->{version} = shift;
+    my $ret = do {
+        no strict "refs";
+        ${ "${class}::$what" };
     }
+        or croak "No $what exists.";
 
-    return $self->{version};
+    return $ret;
 }
 
-sub address_type {
-    my $self = shift;
-
-    if ( @_ ) {
-        $self->{address_type} = shift;
-    }
-
-    return $self->{address_type};
-}
-
-sub is_host { shift->address_type eq "host" }
-
-sub is_network { shift->address_type eq "network" }
-
-sub as_v4 {
-    my $self   = shift;
-    my $format = shift || q{%03d};
-    ( my $bin_str = $self->as_bin ) =~ s{\A 0b }{}msx;
-
-    $bin_str = "0" x ( 8 * 4 - length $bin_str ) . $bin_str;
-
-    return join q{.}, map { sprintf $format, eval "0b$_" } ( $bin_str =~ m{ (\d{8}) }gmsx );
-}
-
-sub as_v6 {
+sub cidr {
     my $self = shift;
     ( my $bin_str = $self->as_bin ) =~ s{\A 0b }{}msx;
 
-    $bin_str = "0" x ( 16 * 8 - length $bin_str ) . $bin_str;
-
-    return join q{:}, map { sprintf "%04x", eval "0b$_" } ( $bin_str =~ m{ (\d{16}) }gmsx );
+    return 0 if length( $bin_str ) < $self->get( "bits_length" );
+    return length sprintf "%s", $bin_str =~ m{\A (1+) }msx;
 }
-
-sub as_cidr { length sprintf "%s", shift->as_bin =~ m{\A 0b (1+) }msx }
 
 sub human_readable {
-    my $self = shift;
-    my $what = $self->is_host ? ( sprintf "as_v%d", $self->version || 4 ) : "as_cidr";
+    my $self   = shift;
+    my $format = shift || $self->get( "block_format" );
 
-    return $self->$what;
+    ( my $bin_str = $self->as_bin ) =~ s{\A 0b }{}msx;
+    $bin_str = "0" x ( $self->get( "bits_length" ) - length $bin_str ) . $bin_str;
+
+    my $bits_per_block = $self->get( "bits_per_block" );
+
+    return join $self->get( "separator" ), map { sprintf $format, eval "0b$_" } ( $bin_str =~ m{ (\d{$bits_per_block}) }gmsx );
 }
 
 1;
@@ -118,7 +78,7 @@ Net::TinyIp::Address - IP Address object
 =head1 SYNOPSIS
 
   use Net::TinyIp::Address;
-  my $ip = Net::TinyIp::Address->from_v4( "192.168.1.1" );
+  my $ip = Net::TinyIp::Address->from_string( "192.168.1.1" );
   say $ip;
 
 =head1 DESCRIPTION

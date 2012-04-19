@@ -2,23 +2,24 @@ package Net::TinyIp;
 use strict;
 use warnings;
 use Net::TinyIp::Address;
+use Net::TinyIp::Address::v4;
+use Net::TinyIp::Address::v6;
 
 use overload q{""} => \&human_readable;
 
 our $VERSION = '0.01';
 
-=for comment
-sub import {
-    my $class = shift;
-    my @tags  = @_;
-
-    foreach my $tag ( @tags ) {
-        my $module = join q{::}, $class, map { ucfirst } split m{_}, $tag;
-        eval "require $module"
-            or die;
-    }
-}
-=cut
+### # Might import util method by this.
+### sub import {
+###     my $class = shift;
+###     my @tags  = @_;
+### 
+###     foreach my $tag ( @tags ) {
+###         my $module = join q{::}, $class, map { ucfirst } split m{_}, $tag;
+###         eval "require $module"
+###             or die;
+###     }
+### }
 
 sub new {
     my $class   = shift;
@@ -27,17 +28,36 @@ sub new {
 
     my( $host, $cidr ) = split m{/}, $address;
 
-    $self{host}    = Net::TinyIp::Address->from_v4( $host );
-    $self{cidr}    = Net::TinyIp::Address->from_v4_cidr( $cidr );
-#    $self{network}; # now writing...
-#    $self{version} = $host =~ m{[.]} ? 4 : $host =~ m{[:]} ? 6 : undef;
+    $self{host}    = Net::TinyIp::Address::v4->from_string( $host );
+    $self{network} = Net::TinyIp::Address::v4->from_cidr( $cidr );
 
     return bless \%self, $class;
 }
 
+sub network {
+    my $self = shift;
+
+    if ( @_ ) {
+        $self->{network} = shift;
+    }
+
+    return $self->{network};
+}
+
+sub host {
+    my $self = shift;
+
+    if ( @_ ) {
+        $self->{host} = shift;
+    }
+
+    return $self->{host};
+}
+
 sub human_readable {
     my $self = shift;
-    return join q{/}, @{ $self }{ qw( host cidr ) };
+
+    return join q{/}, $self->host, $self->network->cidr;
 }
 
 1;
