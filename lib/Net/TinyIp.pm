@@ -28,8 +28,11 @@ sub new {
 
     my( $host, $cidr ) = split m{/}, $address;
 
-    $self{host}    = Net::TinyIp::Address::v4->from_string( $host );
-    $self{network} = Net::TinyIp::Address::v4->from_cidr( $cidr );
+    my $version = $host =~ m{[.]} ? 4 : $host =~ m{[:]} ? 6 : undef;
+    my $module  = join q{::}, __PACKAGE__, "Address", "v$version";
+
+    $self{host}    = $module->from_string( $host );
+    $self{network} = $module->from_cidr( $cidr );
 
     return bless \%self, $class;
 }
