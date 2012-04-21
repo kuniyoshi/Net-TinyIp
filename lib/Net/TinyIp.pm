@@ -2,24 +2,22 @@ package Net::TinyIp;
 use strict;
 use warnings;
 use Net::TinyIp::Address;
-use Net::TinyIp::Address::v4;
-use Net::TinyIp::Address::v6;
 
 use overload q{""} => \&human_readable;
 
-our $VERSION = '0.01';
+our $VERSION = "0.02";
 
-### # Might import util method by this.
-### sub import {
-###     my $class = shift;
-###     my @tags  = @_;
-### 
-###     foreach my $tag ( @tags ) {
-###         my $module = join q{::}, $class, map { ucfirst } split m{_}, $tag;
-###         eval "require $module"
-###             or die;
-###     }
-### }
+sub import {
+    my $class = shift;
+    my @tags  = @_;
+
+    foreach my $tag ( @tags ) {
+        my $module = join q{::}, $class, "Util", join q{}, map { ucfirst } split m{_}, $tag;
+        eval "require $module"
+            or die;
+        $module->import;
+    }
+}
 
 sub new {
     my $class   = shift;

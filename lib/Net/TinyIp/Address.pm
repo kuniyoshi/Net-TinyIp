@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use base "Math::BigInt";
 use Carp qw( croak );
+use Net::TinyIp::Address::v4;
+use Net::TinyIp::Address::v6;
 
 use overload q{""} => \&human_readable;
 
@@ -78,7 +80,7 @@ Net::TinyIp::Address - IP Address object
 =head1 SYNOPSIS
 
   use Net::TinyIp::Address;
-  my $ip = Net::TinyIp::Address->from_string( "192.168.1.1" );
+  my $ip = Net::TinyIp::Address::v4->from_string( "192.168.1.1" );
   say $ip;
 
 =head1 DESCRIPTION
