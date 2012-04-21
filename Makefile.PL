@@ -3,7 +3,7 @@ name 'Net-TinyIp';
 all_from 'lib/Net/TinyIp.pm';
 readme_from "lib/Net/TinyIp.pm";
 
-# requires '';
+requires "Module::Install::ReadmeFromPod";
 
 tests 't/*.t';
 author_tests 'xt';
