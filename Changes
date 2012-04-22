@@ -1,7 +1,9 @@
 Revision history for Perl extension Net::TinyIp
 
+0.03    2012-04-22 14:15
+        - Import Net::TinyIp::Util from other repo.
 0.02    2012-04-22 01:11
-        can use util module to install new method.
+        - can use util module to install new method.
 0.01    2012-04-16 00:09
         - original version
 

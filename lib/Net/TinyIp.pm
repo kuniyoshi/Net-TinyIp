@@ -5,7 +5,7 @@ use Net::TinyIp::Address;
 
 use overload q{""} => \&human_readable;
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 sub import {
     my $class = shift;
