@@ -7,7 +7,7 @@ SYNOPSIS
       say $ip;
 
 DESCRIPTION
-    Net::TinyIp represents IP address.
+    Net::TinyIp represents host IP address, and network IP address.
 
 AUTHOR
     kuniyoshi <kuniyoshi@cpan.org>

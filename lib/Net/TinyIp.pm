@@ -5,7 +5,7 @@ use Net::TinyIp::Address;
 
 use overload q{""} => \&human_readable;
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 sub import {
     my $class = shift;
@@ -76,7 +76,7 @@ Net::TinyIp - IP object
 
 =head1 DESCRIPTION
 
-Net::TinyIp represents IP address.
+Net::TinyIp represents host IP address, and network IP address.
 
 =head1 AUTHOR
 

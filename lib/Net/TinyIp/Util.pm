@@ -3,8 +3,6 @@ use strict;
 use warnings;
 use Carp qw( carp );
 
-our $VERSION = "0.01";
-
 sub import_methods { ( ) }
 
 sub import {
