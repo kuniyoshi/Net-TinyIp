@@ -50,6 +50,8 @@ sub get {
     return $ret;
 }
 
+sub version { shift->get( "version" ) }
+
 sub cidr {
     my $self = shift;
     ( my $bin_str = $self->as_bin ) =~ s{\A 0b }{}msx;

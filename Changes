@@ -1,5 +1,7 @@
 Revision history for Perl extension Net::TinyIp
 
+0.05    2012-04-29 01:19
+        - Add an alias to version method
 0.04    2012-04-22 15:23
         - Improve document a bit
 0.03    2012-04-22 14:15
