@@ -5,7 +5,7 @@ use Net::TinyIp::Address;
 
 use overload q{""} => \&human_readable;
 
-our $VERSION = "0.05";
+our $VERSION = "0.06";
 
 sub import {
     my $class = shift;
@@ -27,7 +27,7 @@ sub new {
     my( $host, $cidr ) = split m{/}, $address;
 
     my $version = $host =~ m{[.]} ? 4 : $host =~ m{[:]} ? 6 : undef;
-    my $module  = join q{::}, __PACKAGE__, "Address", "v$version";
+    my $module  = join q{::}, $class, "Address", "v$version";
 
     $self{host}    = $module->from_string( $host );
     $self{network} = $module->from_cidr( $cidr );
