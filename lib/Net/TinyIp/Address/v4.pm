@@ -8,8 +8,9 @@ Readonly our $VERSION        => 4;
 Readonly our $BITS_PER_BLOCK => 8;
 Readonly our $BLOCK_LENGTH   => 4;
 Readonly our $BITS_LENGTH    => $BITS_PER_BLOCK * $BLOCK_LENGTH;
-Readonly our $BLOCK_FORMAT   => q{%03d};
 Readonly our $SEPARATOR      => q{.};
+
+our $BLOCK_FORMAT = q{%03d};
 
 sub from_string {
     my $class = shift;
