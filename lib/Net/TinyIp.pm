@@ -5,7 +5,7 @@ use Net::TinyIp::Address;
 
 use overload q{""} => \&human_readable;
 
-our $VERSION = "0.07";
+our $VERSION = "0.08";
 
 sub import {
     my $class = shift;
@@ -33,20 +33,28 @@ sub new {
         $cidr = $module->get( "bits_length" );
     }
 
-    $self{host}    = $module->from_string( $host );
-    $self{network} = $module->from_cidr( $cidr );
+    $self{host} = $module->from_string( $host );
+    $self{mask} = $module->from_cidr( $cidr );
 
     return bless \%self, $class;
 }
 
 sub network {
+    my $self    = shift;
+    my $network = $self->host & $self->mask;
+
+    return $network;
+}
+
+sub broadcast {
     my $self = shift;
+    my $neg  = ( ref $self->mask )
+        ->from_bin( "0b1" )
+        ->blsft( $self->mask->get( "bits_length" ) )
+        ->bsub( 1 )
+        ->bxor( $self->mask );
 
-    if ( @_ ) {
-        $self->{network} = shift;
-    }
-
-    return $self->{network};
+    return $self->network | $neg;
 }
 
 sub host {
@@ -59,10 +67,20 @@ sub host {
     return $self->{host};
 }
 
+sub mask {
+    my $self = shift;
+
+    if ( @_ ) {
+        $self->{mask} = shift;
+    }
+
+    return $self->{mask};
+}
+
 sub human_readable {
     my $self = shift;
 
-    return join q{/}, $self->host, $self->network->cidr;
+    return join q{/}, $self->host, $self->mask->cidr;
 }
 
 1;
@@ -81,6 +99,16 @@ Net::TinyIp - IP object
 =head1 DESCRIPTION
 
 Net::TinyIp represents host IP address, and network IP address.
+
+=head1 METHODS
+
+=over
+
+=item network
+
+=item broadcast
+
+=back
 
 =head1 AUTHOR
 

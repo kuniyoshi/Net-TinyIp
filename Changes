@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::TinyIp
 
+0.08    2012-05-19 22:59
+        - Add two methods, network, and broadcast
+        - Fix method name from network to mask
+        - Add prereq, Readonly
 0.07    2012-05-12 17:11
         - Number format now changable
         - Treat as specified full bits length if no cidr exist

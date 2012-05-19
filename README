@@ -9,6 +9,10 @@ SYNOPSIS
 DESCRIPTION
     Net::TinyIp represents host IP address, and network IP address.
 
+METHODS
+    network
+    broadcast
+
 AUTHOR
     kuniyoshi <kuniyoshi@cpan.org>
 
